@@ -64,11 +64,11 @@ colors <- c('K', 'W', 'R', 'Y', 'B', 'G', 'N', 'V', 'I', 'M', 'X')
 test.combos1 <- permutations(n = 11, r = 3, v = colors, 
                              repeats.allowed = TRUE) %>%
   as.data.frame(stringsAsFactors = FALSE) %>%
-  rename(left_top = V1, right_top = V2, right_bottom = V3) %>%
-  mutate(left_bottom = 'A') %>%
+  rename(left_top = V1, left_bottom = V2, right_top = V3) %>%
+  mutate(right_bottom = 'A') %>%
   select(left_top, left_bottom, right_top, right_bottom) %>%
-  # Remove duplicates and unbanded right leg combos
-  filter(right_top != 'X') %>%
+  # Remove duplicates and unbanded left leg combos
+  filter(left_top != 'X') %>%
   mutate(combo = paste(left_top, '/', left_bottom, '_', 
                        right_top, '/', right_bottom, sep = ''),
          # Remove Xs as stand-ins for no band
@@ -82,14 +82,14 @@ inds1 <- which(test.combos1$combo %in% k.combos$combo)
 test.combos2 <- permutations(n = 11, r = 3, v = colors, 
                              repeats.allowed = TRUE) %>%
   as.data.frame(stringsAsFactors = FALSE) %>%
-  rename(left_top = V1, right_top = V2, right_bottom = V3) %>%
-  mutate(left_bottom = 'A') %>%
+  rename(left_top = V1, left_bottom = V2, right_top = V3) %>%
+  mutate(right_bottom = 'A') %>%
   select(left_top, left_bottom, right_top, right_bottom) %>%
-  # Remove duplicates and unbanded right leg combos
-  filter(right_top != 'X') %>%
+  # Remove duplicates and unbanded left leg combos
+  filter(left_top != 'X') %>%
   mutate(combo = paste(left_top, '/', left_bottom, '_', 
                        right_top, '/', right_bottom, sep = ''),
-         # Remove Xs as stand-ins for no band
+         # Remove all but colors in combo
          combo = gsub('/', '', combo),
          combo = gsub('_', '', combo))
 
@@ -108,13 +108,13 @@ test.combos.kevin <- test.combos2 %>%
   filter(!combo %in% test.combos.kira$combo)
 
 
-test.combos.kevin <- test.combos.kevin[-c(669:671),] %>%
+test.combos.kevin <- test.combos.kevin[-c(653:655),] %>%
   select(combo)
 
 test.combos.kira <- test.combos.kira[-c(451:452),] %>%
   select(combo)
 
-test.pops <- as.data.frame(rep(1:4, 167))
+test.pops <- as.data.frame(rep(1:4, 163))
 sims <- c()
 
 for(i in 1:1000) {
@@ -123,10 +123,10 @@ for(i in 1:1000) {
   ord <- test.combos.kevin[sample(nrow(test.combos.kevin)),] %>%
     cbind(test.pops)
   
-  one <- ord[ord$`rep(1:4, 167)` == 1,]$. %>% as.character()
-  two <- ord[ord$`rep(1:4, 167)` == 2,]$. %>% as.character()
-  three <- ord[ord$`rep(1:4, 167)` == 3,]$. %>% as.character()
-  four <- ord[ord$`rep(1:4, 167)` == 4,]$. %>% as.character()
+  one <- ord[ord$`rep(1:4, 163)` == 1,]$. %>% as.character()
+  two <- ord[ord$`rep(1:4, 163)` == 2,]$. %>% as.character()
+  three <- ord[ord$`rep(1:4, 163)` == 3,]$. %>% as.character()
+  four <- ord[ord$`rep(1:4, 163)` == 4,]$. %>% as.character()
   
   int.sims <- c()
   int.sims1 <- c()
@@ -145,12 +145,13 @@ for(i in 1:1000) {
                        unlist(int.sims4[[j]]))
   }
   sims[i] <- sum(int.sims)
+  print(i)
 }
 
-# Out of 1:1000, 162 was the best, so this is the way to generate
+# Out of 1:1000, 254 was the best, so this is the way to generate
 # the best combination of populations:
 
-set.seed(162)
+set.seed(254)
 ord <- test.combos.kevin[sample(nrow(test.combos.kevin)),] %>%
   cbind(test.pops)
 
@@ -160,7 +161,7 @@ ord <- test.combos.kevin[sample(nrow(test.combos.kevin)),] %>%
 k.test.pops <- as.data.frame(rep(1:6, 75), col.names = 'pop')
 k.sims <- c()
 
-for(i in 1:100) {
+for(i in 1:500) {
   set.seed(i)
   
   ord <- test.combos.kira[sample(nrow(test.combos.kira)),] %>%
@@ -203,9 +204,10 @@ for(i in 1:100) {
   k.sims[i] <- sum(unlist(int.sims1), unlist(int.sims2),
                    unlist(int.sims3), unlist(int.sims4),
                    unlist(int.sims5), unlist(int.sims6))
+  print(i)
 }
 
-set.seed(71)
+set.seed(433)
 ord <- test.combos.kira[sample(nrow(test.combos.kira)),] %>%
   cbind(k.test.pops)
 
@@ -213,7 +215,7 @@ ord <- test.combos.kira[sample(nrow(test.combos.kira)),] %>%
 
 # ORDER THE COMBOS
 
-set.seed(162)
+set.seed(254)
 test.combos.kevin.pop <- 
   test.combos.kevin[sample(nrow(test.combos.kevin)),] %>%
   cbind(test.pops)
@@ -282,9 +284,9 @@ order.pop4 <- order_bands(test.combos.kevin.pop, 4, 1000)
 kev.order <- 
   data.frame(combo = c(order.pop1, order.pop2, 
                        order.pop3, order.pop4),
-             pop = c(rep(1, 167), rep(2, 167), 
-                     rep(3, 167), rep(4, 167)),
-             order = rep(1:167, 4)) %>%
+             pop = c(rep(1, 163), rep(2, 163), 
+                     rep(3, 163), rep(4, 163)),
+             order = rep(1:163, 4)) %>%
   mutate(left_top = str_sub(combo, end = 1),
          left_bottom = str_sub(combo, start = 2, end = 2),
          right_top = str_sub(combo, start = 3, end = 3),
@@ -302,7 +304,7 @@ write.csv(kev.order, 'band_order_kev.csv', row.names = FALSE)
 
 # ============ Kira =============
 
-set.seed(71)
+set.seed(433)
 test.combos.kira.pop <- 
   test.combos.kira[sample(nrow(test.combos.kira)),] %>%
   cbind(k.test.pops)
@@ -368,12 +370,12 @@ order_bands_kira <- function(dat, pop, reps) {
   return(final.outcome)
 }
 
-order.kpop2 <- order_bands_kira(test.combos.kira.pop, 2, 100)
-order.kpop3 <- order_bands_kira(test.combos.kira.pop, 3, 100)
+order.kpop2 <- order_bands_kira(test.combos.kira.pop, 2, 500)
+order.kpop3 <- order_bands_kira(test.combos.kira.pop, 3, 500)
 order.kpop4 <- order_bands_kira(test.combos.kira.pop, 4, 1000)
-order.kpop9 <- order_bands_kira(test.combos.kira.pop, 9, 100)
-order.kpop9b <- order_bands_kira(test.combos.kira.pop, 9.5, 100)
-order.kpop10 <- order_bands_kira(test.combos.kira.pop, 10, 564)
+order.kpop9 <- order_bands_kira(test.combos.kira.pop, 9, 500)
+order.kpop9b <- order_bands_kira(test.combos.kira.pop, 9.5, 500)
+order.kpop10 <- order_bands_kira(test.combos.kira.pop, 10, 500)
 
 
 

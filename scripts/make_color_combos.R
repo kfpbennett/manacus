@@ -40,11 +40,11 @@ colors <- c('K', 'W', 'R', 'Y', 'B', 'G', 'N', 'V', 'I', 'M', 'X')
 all.combos <- permutations(n = 11, r = 3, v = colors, 
                        repeats.allowed = TRUE) %>%
   as.data.frame(stringsAsFactors = FALSE) %>%
-  rename(left_top = V1, right_top = V2, right_bottom = V3) %>%
-  mutate(left_bottom = 'A') %>%
+  rename(left_top = V1, left_bottom = V2, right_top = V3) %>%
+  mutate(right_bottom = 'A') %>%
   select(left_top, left_bottom, right_top, right_bottom) %>%
-  # Remove duplicates and unbanded right leg combos
-  filter(right_top != 'X') %>%
+  # Remove duplicates and unbanded left leg combos
+  filter(left_top != 'X') %>%
   mutate(combo = paste(left_top, '/', left_bottom, '_', 
                        right_top, '/', right_bottom, sep = ''),
          # Remove Xs as stand-ins for no band
@@ -52,7 +52,7 @@ all.combos <- permutations(n = 11, r = 3, v = colors,
          combo = gsub('/X', '', combo)) %>%
   # Remove combos already used by Kira
   filter(!combo %in% k.combos$combo) %>%
-  select(-left_bottom)
+  select(-right_bottom)
 
 
 # Filter for the presence of at least one new color
@@ -86,8 +86,8 @@ leftover.combos <- all.combos %>%
 # improving the combinations of colors in each population.
 
 set.seed(162)
-leftover.combos <- leftover.combos[-c(669:671),]
-pops <- rep(1:4, 167)
+leftover.combos <- leftover.combos[-c(653:655),]
+pops <- rep(1:4, 163)
 leftover.combos.pop <- 
   leftover.combos[sample(nrow(leftover.combos)),] %>%
   cbind(pops)
